@@ -1,0 +1,17 @@
+{
+    "name":"quantum-orbital-renderer",
+    "version": "1.0.0",
+    "description": "Interactive 3D viewer of hydrogen-atom orbitals (psi_n,l,m) in vanilla JavaScript and Three.js with factorized inverse-CDF Web Worker sampling.",
+    "type": "module",
+    "private": true,
+    "engines":{
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "test": "node --test",
+        "bench": "node bench/sampling-bench.mjs"
+    },
+    "author":"Gabriel X. Luz",
+    "license":"MIT",
+    "dependencies": {}
+}

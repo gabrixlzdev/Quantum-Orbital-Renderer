@@ -1,0 +1,21 @@
+# Node.js dependency directories and package manager caches
+node_modules/
+npm-debug.log*
+
+# Environment variables, API keys, and local secrets (Security constraint)
+.env
+.env.*
+
+# Operating System generated metadata files (Windows & macOS)
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE and local editor workspace configurations
+.vscode/
+.idea/
+*.swp
+
+# Temporary test coverage or benchmark output artifacts
+coverage/
+*.tmp

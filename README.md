@@ -1,5 +1,7 @@
 # Quantum-Orbital-Renderer
 
+[![CI](https://github.com/gabrixlzdev/Quantum-Orbital-Renderer/actions/workflows/ci.yml/badge.svg)](https://github.com/gabrixlzdev/Quantum-Orbital-Renderer/actions/workflows/ci.yml)
+
 Interactive 3D viewer of hydrogen-atom orbitals ($\psi_{n,l,m}$) in vanilla JavaScript and Three.js, featuring physically verified factorized inverse-CDF sampling in a Web Worker.
 
 ## Overview
@@ -22,6 +24,7 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
 
 ```text
 Quantum-Orbital-Renderer/
+├── .github/workflows/  # Automated GitHub Actions CI pipeline (node --test)
 ├── index.html          # Browser entry point (native ES module importmap & HUD layout)
 ├── src/
 │   ├── physics/        # Pure ES modules (quantum-numbers, radial, angular, sampler)

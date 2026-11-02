@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!-- Declares HTML5 standard mode to ensure consistent CSS box-model and WebGL canvas sizing -->
+<html lang="en">
+<head>
+  <!-- UTF-8 encoding required to render mathematical symbols (psi, theta, phi, Bohr radius a_0) -->
+  <meta charset="UTF-8" />
+  <!-- Responsive viewport preventing mobile pinch-zoom from interfering with 3D OrbitControls -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Document title displayed in browser tab and search engine previews -->
+  <title>Quantum-Orbital-Renderer | 3D Hydrogen Wavefunction Viewer</title>
+
+  <!-- Native Browser Import Map: resolves bare 'three' imports without Webpack or Vite build steps -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.min.js",
+        "three/addons/": "./vendor/"
+      }
+    }
+  </script>
+
+  <!-- Inline critical styles to avoid an extra render-blocking HTTP request on first paint -->
+  <style>
+    /* Reset default margins and lock overflow so the 3D WebGL canvas fills 100% of the viewport */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Dark space background (#05070d) maximizes contrast for additive-blended orbital point clouds */
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #05070d; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+    /* Full-screen WebGL rendering surface positioned behind UI overlays */
+    #orbital-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+    /* Translucent glassmorphic panel layout for controls and quantum physics telemetry */
+    .hud-panel { position: fixed; z-index: 10; background: rgba(12, 17, 29, 0.82); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 10px; padding: 14px 16px; backdrop-filter: blur(8px); max-width: 320px; font-size: 0.85rem; }
+    /* Top-left interactive quantum number and rendering controls */
+    #controls-panel { top: 16px; left: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+    /* Top-right quantum mechanical observables and 2D radial density P(r) plot */
+    #info-panel { top: 16px; right: 16px; }
+    /* Bottom-left real-time GPU/Worker performance instrumentation and benchmark output */
+    #perf-panel { bottom: 16px; left: 16px; font-family: ui-monospace, monospace; font-size: 0.78rem; }
+    /* Form row spacing and accessible contrast for controls */
+    .control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+    select, input[type="range"], button { background: #1e293b; color: #f8fafc; border: 1px solid #475569; border-radius: 5px; padding: 4px 8px; font-size: 0.82rem; }
+    button { cursor: pointer; width: 100%; margin-top: 6px; padding: 6px 10px; font-weight: 600; background: #2563eb; border-color: #3b82f6; }
+    button:hover { background: #1d4ed8; }
+    /* 2D Canvas for overlaying theoretical radial distribution P(r) = r^2 R_nl(r)^2 and sampled histogram */
+    #radial-plot { width: 280px; height: 120px; margin-top: 10px; background: #090d16; border: 1px solid #334155; border-radius: 6px; display: block; }
+  </style>
+</head>
+<body>
+  <!-- Primary WebGL drawing surface where Three.js renders the THREE.Points BufferGeometry -->
+  <canvas id="orbital-canvas" aria-label="3D Hydrogen Orbital Point Cloud"></canvas>
+
+  <!-- Left HUD: Interactive Quantum State (n, l, m) and Point Cloud Rendering Controls -->
+  <section id="controls-panel" class="hud-panel" aria-label="Orbital Controls"></section>
+
+  <!-- Right HUD: Quantum Observables (E_n, radial/angular nodes, <r>) and Radial P(r) Curve -->
+  <aside id="info-panel" class="hud-panel" aria-label="Quantum State Information">
+    <div id="orbital-stats"></div>
+    <canvas id="radial-plot" width="280" height="120"></canvas>
+  </aside>
+
+  <!-- Bottom HUD: Non-blocking Web Worker progress, FPS counter, and Benchmark Report table -->
+  <aside id="perf-panel" class="hud-panel" aria-label="Performance Telemetry"></aside>
+
+  <!-- Entry point loaded as a native ES Module (deferred automatically by the browser) -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

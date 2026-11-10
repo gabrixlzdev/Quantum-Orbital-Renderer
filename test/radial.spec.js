@@ -69,8 +69,7 @@ describe('Hydrogen Radial Wavefunction & Observables (radial.js)', () => {
         );
         // Total probability of finding the electron between r = 0 and infinity must equal 1
         assert.ok(
-          Math.abs(normIntegral - 1.0) < 1e-3,
-          `Normalization failed for (n=${n}, l=${l}): got ${normIntegral}`
+          Math.abs(normIntegral - 1.0) < 1e-3,`Normalization failed for (n=${n}, l=${l}): got ${normIntegral}`
         );
       }
     }

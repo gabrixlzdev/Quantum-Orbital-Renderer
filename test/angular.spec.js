@@ -114,8 +114,7 @@ describe('Associated Legendre & Spherical Harmonics (angular.js)', () => {
       [[2, -2], [2, 2]],
     ];
     for (const [[l1, m1], [l2, m2]] of pairs) {
-      const overlap = integrateOverSphere(
-        (theta, phi) =>
+      const overlap = integrateOverSphere((theta, phi) =>
           realSphericalHarmonic(l1, m1, theta, phi) *
           realSphericalHarmonic(l2, m2, theta, phi)
       );

@@ -49,6 +49,30 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
 - **Reactive Quantum Controls & Telemetry (`controls.js`):** Enforces quantum selection rules ($0 \le l < n$, $|m| \le l$) dynamically, displays analytical vs. Monte Carlo observables ($E_n$, radial/angular nodes, $\langle r \rangle$), and provides instant GPU toggles (color mode, point size, auto-rotate, $z \le 0$ nodal cross-section).
 - **Application Orchestrator (`main.js`):** Synchronizes URL hash state (`#n=3&l=2&m=0&real=1&points=120000`), streams progressive worker chunks into the 3D scene and 2D histogram, and runs an automated multi-scale FPS & Worker benchmark ($50\text{k} \dots 500\text{k}$ points).
 
+## Measured Performance Benchmarks
+
+### 1. In-Browser Web Worker & WebGL GPU Rendering (`3d_z²`, $(n,l,m)=(3,2,0)$)
+
+Measured via the built-in **Automated FPS Benchmark** (`src/main.js` + `sampler.worker.js` + Three.js `BufferGeometry` with `AdditiveBlending`):
+
+| Points | Worker Time (ms) | Mean FPS |
+|-------:|-----------------:|---------:|
+| 50,000 | 39.9 ms | 60 FPS |
+| 100,000 | 58.8 ms | 60 FPS |
+| 250,000 | 146.8 ms | 60 FPS |
+| 500,000 | 336.9 ms | 60 FPS |
+
+### 2. Algorithmic Sampler Comparison (`npm run bench` — Node.js)
+
+Head-to-head comparison (`bench/sampling-bench.mjs`) between our **Factorized Inverse-CDF Sampler** ($100,000$ points) and a **Naive 3D Cartesian Box Rejection Sampler** ($5,000$ points):
+
+| Orbital | Factorized CDF (100k ms) | Factorized (samples/s) | 3D Rejection Acceptance | 3D Rejection (samples/s) | Speedup |
+|:--------|-------------------------:|-----------------------:|------------------------:|-------------------------:|--------:|
+| `1s (1,0,0)` | 50.6 ms | 1,976,406 /s | 0.008% | 417 /s | **4739.6x** |
+| `2p_z (2,1,0)` | 38.1 ms | 2,626,761 /s | 0.037% | 910 /s | **2886.6x** |
+| `3d_z² (3,2,0)` | 43.3 ms | 2,308,456 /s | 0.059% | 2,608 /s | **885.1x** |
+| `4f_z³ (4,3,0)` | 42.7 ms | 2,340,199 /s | 0.073% | 2,702 /s | **866.1x** |
+
 ## Project Structure
 
 ```text

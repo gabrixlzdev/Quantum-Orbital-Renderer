@@ -46,7 +46,9 @@ export async function createOrbitalScene(canvas, options = {}) {
   // Extract initial world-space point size
   let pointSize = options.initialPointSize || 0.18;
   // Store active color mode ('phase', 'radius', or 'single')
-  let colorMode = COLOR_MODES.PHASE;
+  let colorMode = 'phase';
+  // Track whether current orbital is in real or complex harmonic mode
+  let currentIsReal = true;
 
   // Check if the user's OS has 'prefers-reduced-motion: reduce' enabled for accessibility
   const prefersReducedMotion =
@@ -97,8 +99,7 @@ export async function createOrbitalScene(canvas, options = {}) {
   // Pre-allocate contiguous Float32Arrays for 500,000 3D positions and RGB colors (6 MB each)
   const positionBuffer = new Float32Array(maxPoints * 3);
   const colorBuffer = new Float32Array(maxPoints * 3);
-  // Also keep CPU copies of signs, phases, and radii so color mode switches are instant without re-sampling!
-  const signsBuffer = new Float32Array(maxPoints);
+  // Also keep CPU copies of phases and radii so color mode switches are instant without re-sampling!
   const phasesBuffer = new Float32Array(maxPoints);
   const radiiBuffer = new Float32Array(maxPoints);
 
@@ -137,27 +138,33 @@ export async function createOrbitalScene(canvas, options = {}) {
 
   // Track how many points have currently been streamed into the buffer
   let activePointCount = 0;
-  // Track the current outer radius rMax for radius color mapping and camera framing
+  // Track the current outer radius rMax and 99.5% radius r995 for radius color mapping and camera framing
   let currentRMax = 15;
+  let currentR995 = 10;
 
   /**
    * Resets the point cloud draw range to 0 when starting a new orbital generation.
    *
    * @param {number} [rMax=15] - Estimated outer radius of the new orbital.
+   * @param {boolean} [isReal=true] - Whether the orbital uses real spherical harmonics.
    */
-  function clearCloud(rMax = 15) {
+  function clearCloud(rMax = 15, isReal = true) {
     activePointCount = 0;
     currentRMax = rMax > 0 ? rMax : 15;
+    currentR995 = currentRMax * 0.7;
+    currentIsReal = Boolean(isReal);
     geometry.setDrawRange(0, 0);
   }
 
   /**
    * Appends a streamed chunk of points from the Web Worker into the pre-allocated GPU buffers.
    *
-   * @param {object} chunk - Worker chunk containing positions, signs, phases, radii, and rMax.
+   * @param {object} chunk - Worker chunk containing positions, phases, radii, rMax, and r995.
+   * @param {boolean} [isReal=currentIsReal] - Whether real spherical harmonics are active.
    */
-  function appendChunk(chunk) {
-    const chunkPoints = chunk.chunkPoints;
+  function appendChunk(chunk, isReal = currentIsReal) {
+    currentIsReal = Boolean(isReal);
+    const chunkPoints = chunk.chunkCount ?? chunk.chunkPoints ?? 0;
     // Clamp so we never overflow the pre-allocated maxPoints buffer
     const availableSpace = Math.max(0, maxPoints - activePointCount);
     const countToCopy = Math.min(chunkPoints, availableSpace);
@@ -166,6 +173,9 @@ export async function createOrbitalScene(canvas, options = {}) {
     if (chunk.rMax > 0) {
       currentRMax = chunk.rMax;
     }
+    if (chunk.r995 > 0) {
+      currentR995 = chunk.r995;
+    }
 
     // Compute offsets in the 3D (x,y,z) and 1D (scalar) arrays
     const offset3 = activePointCount * 3;
@@ -173,19 +183,18 @@ export async function createOrbitalScene(canvas, options = {}) {
 
     // Copy chunk positions into the master GPU position buffer
     positionBuffer.set(chunk.positions.subarray(0, countToCopy * 3), offset3);
-    // Cache signs, phases, and radii so we can re-color instantaneously on UI toggle
-    signsBuffer.set(chunk.signs.subarray(0, countToCopy), offset1);
+    // Cache phases and radii so we can re-color instantaneously on UI toggle
     phasesBuffer.set(chunk.phases.subarray(0, countToCopy), offset1);
     radiiBuffer.set(chunk.radii.subarray(0, countToCopy), offset1);
 
     // Compute RGB colors directly into a subarray view of colorBuffer (zero heap allocation!)
     const colorSubarray = colorBuffer.subarray(offset3, offset3 + countToCopy * 3);
     buildOrbitalColors({
-      signs: chunk.signs.subarray(0, countToCopy),
-      phases: chunk.phases.subarray(0, countToCopy),
       radii: chunk.radii.subarray(0, countToCopy),
-      rMax: currentRMax,
-      mode: colorMode,
+      phases: chunk.phases.subarray(0, countToCopy),
+      r995: currentR995,
+      isReal: currentIsReal,
+      colorMode,
       outColors: colorSubarray,
     });
 
@@ -202,15 +211,17 @@ export async function createOrbitalScene(canvas, options = {}) {
    * @param {string} newMode - One of 'phase', 'radius', or 'single'.
    */
   function setColorMode(newMode) {
-    colorMode = newMode;
+    if (COLOR_MODES.includes(newMode)) {
+      colorMode = newMode;
+    }
     if (activePointCount <= 0) return;
 
     buildOrbitalColors({
-      signs: signsBuffer.subarray(0, activePointCount),
-      phases: phasesBuffer.subarray(0, activePointCount),
       radii: radiiBuffer.subarray(0, activePointCount),
-      rMax: currentRMax,
-      mode: colorMode,
+      phases: phasesBuffer.subarray(0, activePointCount),
+      r995: currentR995,
+      isReal: currentIsReal,
+      colorMode,
       outColors: colorBuffer.subarray(0, activePointCount * 3),
     });
     colorAttr.needsUpdate = true;

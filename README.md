@@ -43,6 +43,12 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
   - Pinned Three.js (`v0.160.0`) and `OrbitControls` ES modules vendored in `vendor/` via `<script type="importmap">` for zero external CDN dependency.
   - Preallocates GPU `BufferGeometry` (`THREE.DynamicDrawUsage`) for up to $500,000$ points, streaming worker chunks progressively via `setDrawRange` with `THREE.AdditiveBlending`, `depthWrite: false`, trigonometric camera auto-framing (`computeCameraDistanceForRadius`), and $z \le 0$ cross-sectional nodal slicing.
 
+## Interactive HUD, 2D Radial Plot & Orchestrator (`src/ui/` & `src/main.js`)
+
+- **2D Radial Probability & Sample Histogram (`radial-plot.js`):** Overlays the analytical Schrödinger curve $P(r) = r^2 |R_{n,l}(r)|^2$ against the normalized empirical histogram ($\sum_b \hat{P}_b \Delta r = 1$) of streamed worker samples, with a marker at $\langle r \rangle$.
+- **Reactive Quantum Controls & Telemetry (`controls.js`):** Enforces quantum selection rules ($0 \le l < n$, $|m| \le l$) dynamically, displays analytical vs. Monte Carlo observables ($E_n$, radial/angular nodes, $\langle r \rangle$), and provides instant GPU toggles (color mode, point size, auto-rotate, $z \le 0$ nodal cross-section).
+- **Application Orchestrator (`main.js`):** Synchronizes URL hash state (`#n=3&l=2&m=0&real=1&points=120000`), streams progressive worker chunks into the 3D scene and 2D histogram, and runs an automated multi-scale FPS & Worker benchmark ($50\text{k} \dots 500\text{k}$ points).
+
 ## Project Structure
 
 ```text
@@ -62,6 +68,11 @@ Quantum-Orbital-Renderer/
 
 ## Scripts
 
+- **Run locally in browser** (serves ES modules & Web Worker over HTTP, or use VS Code **Go Live**):
+  ```bash
+  python -m http.server 8080
+  # Open http://localhost:8080
+  ```
 - **Run unit & physics verification tests** (requires Node.js $\ge 20$):
   ```bash
   npm test

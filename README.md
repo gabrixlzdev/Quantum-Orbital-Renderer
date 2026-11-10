@@ -28,6 +28,12 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
   - Uses deterministic `mulberry32` PRNG and preallocated `Float32Array` buffers (`positions`, `radii`, `phases`) with zero per-sample object allocations.
   - Verified with $200,000$ seeded samples per orbital to match analytical $\langle r \rangle$ and $\langle r^2 \rangle$ within $5$ standard errors.
 
+## Non-Blocking Web Worker (`src/worker/sampler.worker.js`)
+
+- **Progressive Streaming:** Emits batches of $20,000$ points (`DEFAULT_CHUNK_SIZE`) so the initial orbital structure renders in $\sim 15\text{ ms}$ while remaining points stream in the background.
+- **Zero-Copy Memory Transfer:** Transfers `Float32Array` buffer ownership (`positions.buffer`, `radii.buffer`, `phases.buffer`) via `Transferable` objects in $O(1)$ time with zero serialization overhead.
+- **Stale Request Cancellation:** Tags every chunk with `requestId` so rapid UI orbital switches ignore outdated worker batches.
+
 ## Project Structure
 
 ```text

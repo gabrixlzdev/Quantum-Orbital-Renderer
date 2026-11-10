@@ -34,6 +34,12 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
 - **Zero-Copy Memory Transfer:** Transfers `Float32Array` buffer ownership (`positions.buffer`, `radii.buffer`, `phases.buffer`) via `Transferable` objects in $O(1)$ time with zero serialization overhead.
 - **Stale Request Cancellation:** Tags every chunk with `requestId` so rapid UI orbital switches ignore outdated worker batches.
 
+## 3D WebGL Rendering Pipeline (`src/render/`)
+
+- **Wavefunction Color Mapping (`colors.js`):**
+  - **`phase` mode:** Maps real wavefunction sign ($\psi \ge 0$ vs. $\psi < 0$) to high-contrast electric cyan and coral-orange lobes, or complex phase $\varphi \in [-\pi, \pi]$ to a seamless $2\pi$-periodic cosine RGB wheel.
+  - **`radius` & `single` modes:** Normalizes radial distance by the $99.5\%$ probability radius ($r_{995}$) or applies uniform monochrome glow, reusing preallocated `Float32Array` color buffers in place.
+
 ## Project Structure
 
 ```text

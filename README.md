@@ -23,6 +23,10 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
   - Associated Legendre functions $P_l^m(\cos\theta)$ computed via stable upward recurrence in degree $l$, including the **Condon-Shortley phase convention $(-1)^m$**.
   - Supports both **real orbitals** ($m > 0 \propto \sqrt{2}\cos(m\phi)$, $m < 0 \propto \sqrt{2}\sin(|m|\phi)$, $m = 0$) and **complex orbitals** ($e^{im\phi}$).
   - Verified via 2D spherical quadrature to satisfy $\oint |Y_{l,m}(\theta, \phi)|^2 \, d\Omega = 1 \pm 10^{-3}$ for all $l \in [0, 5]$ and $m \in [-l, l]$.
+- **Factorized Inverse-CDF Monte Carlo Sampler (`sampler.js`):**
+  - Tabulates $4096$-point radial CDFs for $P(r) = r^2 R_{n,l}(r)^2$ (up to an adaptive $r_{\max}$ with tail mass $< 10^{-7}$) and $2048$-point polar CDFs for $|P_l^{|m|}(\cos\theta)|^2$, inverted via $O(\log_2 N)$ binary search and linear interpolation.
+  - Uses deterministic `mulberry32` PRNG and preallocated `Float32Array` buffers (`positions`, `radii`, `phases`) with zero per-sample object allocations.
+  - Verified with $200,000$ seeded samples per orbital to match analytical $\langle r \rangle$ and $\langle r^2 \rangle$ within $5$ standard errors.
 
 ## Project Structure
 

@@ -122,6 +122,11 @@ Quantum-Orbital-Renderer/
   npm run bench
   ```
 
+## References
+
+- **D. J. Griffiths & D. F. Schroeter**, *Introduction to Quantum Mechanics* (3rd ed., Cambridge University Press, 2018), Chapter 4: *Quantum Mechanics in Three Dimensions — The Hydrogen Atom* (Section 4.2, Spherical Harmonics & Radial Wavefunctions).
+- **NIST Digital Library of Mathematical Functions (DLMF)**, Chapter 14 (*Legendre and Related Functions*) & Chapter 18 (*Orthogonal Polynomials — Generalized Laguerre Recurrences*).
+
 ## License
 
 [MIT](LICENSE)

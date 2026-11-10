@@ -39,6 +39,9 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
 - **Wavefunction Color Mapping (`colors.js`):**
   - **`phase` mode:** Maps real wavefunction sign ($\psi \ge 0$ vs. $\psi < 0$) to high-contrast electric cyan and coral-orange lobes, or complex phase $\varphi \in [-\pi, \pi]$ to a seamless $2\pi$-periodic cosine RGB wheel.
   - **`radius` & `single` modes:** Normalizes radial distance by the $99.5\%$ probability radius ($r_{995}$) or applies uniform monochrome glow, reusing preallocated `Float32Array` color buffers in place.
+- **Zero-GC Three.js Point-Cloud Scene (`scene.js` & `vendor/`):**
+  - Pinned Three.js (`v0.160.0`) and `OrbitControls` ES modules vendored in `vendor/` via `<script type="importmap">` for zero external CDN dependency.
+  - Preallocates GPU `BufferGeometry` (`THREE.DynamicDrawUsage`) for up to $500,000$ points, streaming worker chunks progressively via `setDrawRange` with `THREE.AdditiveBlending`, `depthWrite: false`, trigonometric camera auto-framing (`computeCameraDistanceForRadius`), and $z \le 0$ cross-sectional nodal slicing.
 
 ## Project Structure
 

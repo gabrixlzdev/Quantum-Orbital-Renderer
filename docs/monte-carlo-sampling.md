@@ -13,9 +13,13 @@ Named after the Monte Carlo casino by Stanislaw Ulam, John von Neumann, and Nich
 ### Why Statistical Error Scales as $\sigma / \sqrt{N}$ (Central Limit Theorem)
 Suppose we draw $N$ independent and identically distributed (i.i.d.) radial samples $r_1, r_2, \dots, r_N$ from the true probability density $P(r) = r^2 |R_{n,l}(r)|^2$, which has exact analytical mean $\mu = \langle r \rangle$ and variance $\sigma^2 = \langle r^2 \rangle - \langle r \rangle^2$.
 
-The **sample mean** $\bar{r}_N = \frac{1}{N}\sum_{i=1}^N r_i$ is a random variable whose variance is:
+The **sample mean** is a random variable:
 
-$$\operatorname{Var}(\bar{r}_N) = \operatorname{Var}\!\left(\frac{1}{N}\sum_{i=1}^N r_i\right) = \frac{1}{N^2} \sum_{i=1}^N \operatorname{Var}(r_i) = \frac{N \sigma^2}{N^2} = \frac{\sigma^2}{N}$$
+$$\bar{r}_N = \frac{1}{N}\sum_{i=1}^N r_i$$
+
+Its variance is:
+
+$$\text{Var}(\bar{r}_N) = \text{Var}\!\left(\frac{1}{N}\sum_{i=1}^N r_i\right) = \frac{1}{N^2} \sum_{i=1}^N \text{Var}(r_i) = \frac{N \sigma^2}{N^2} = \frac{\sigma^2}{N}$$
 
 Taking the square root gives the **Standard Error of the Mean ($\text{SE}$)**:
 
@@ -61,7 +65,8 @@ However, $r'^2 |R_{n,l}(r')|^2 = \text{Polynomial}_{2n-2}(r') \cdot e^{-2r'/n}$.
 
 ### How the Tabulated CDF + $O(\log_2 N)$ Binary Search Solves It
 In [`buildRadialCDF`](../src/physics/sampler.js#L57-L95) and [`buildPolarCosThetaCDF`](../src/physics/sampler.js#L101-L141):
-1. **Tabulate the Integral Once per Orbital:** We numerically integrate $F_R(r_k) = \int_0^{r_k} r'^2 R_{n,l}(r')^2\,dr'$ on a fine grid of $N_{\text{grid}} = 4096$ points over $[0, r_{\max}]$ using the trapezoidal rule.
+1. **Tabulate the Integral Once per Orbital:** We numerically integrate $F_R(r_k)$ on a fine grid of $4096$ points over $[0, r_{\max}]$ using the trapezoidal rule:
+   $$F_R(r_k) = \int_0^{r_k} r'^2 R_{n,l}(r')^2\,dr'$$
 2. **Why Uniform $u \in [0, 1)$ Automatically Lands in Dense Regions:**
    - By the Fundamental Theorem of Calculus, the slope of the CDF curve is the probability density itself:
      $$\frac{dF_R(r)}{dr} = P_R(r) = r^2 |R_{n,l}(r)|^2 \ge 0$$

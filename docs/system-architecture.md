@@ -104,7 +104,9 @@ This completely eliminates JavaScript Garbage Collection (GC) pauses during stre
 ### Why `THREE.AdditiveBlending` Requires `depthWrite: false`
 In standard opaque 3D rendering, the GPU writes each pixel's distance from the camera into the **Z-buffer (depth buffer)** (`depthWrite: true`) and discards any subsequent fragment drawn behind an existing pixel.
 - Because our Monte Carlo points are generated in **random spatial order** (not sorted back-to-front relative to the camera), leaving `depthWrite: true` on semi-transparent points would cause front points to randomly occlude points behind them, creating dark square artifacts when rotating the camera.
-- By setting **`blending: THREE.AdditiveBlending`** and **`depthWrite: false`**, overlapping points along any camera ray **commutatively sum their RGB light** ($C_{\text{final}} = \sum_i \alpha C_i$). Brighter glowing regions naturally correspond to higher line-of-sight integrals of $|\psi(r, \theta, \phi)|^2$, while nodal surfaces remain dark!
+- By setting **`blending: THREE.AdditiveBlending`** and **`depthWrite: false`**, overlapping points along any camera ray **commutatively sum their RGB light**:
+  $$C_{\text{final}} = \sum_i \alpha C_i$$
+  Brighter glowing regions naturally correspond to higher line-of-sight integrals of $|\psi(r, \theta, \phi)|^2$, while nodal surfaces remain dark!
 
 ---
 

@@ -119,7 +119,8 @@ $$\psi_{n,l,m}^{\text{complex}}(r, \theta, \phi) = R_{n,l}(r) \, N_l^{|m|} P_l^{
 2. **Why the colors become a $2\pi$ Rainbow Wheel:**
    - In complex mode, $\psi$ has a continuous phase angle $\varphi \in [-\pi, +\pi]$ rather than just a $\pm 1$ sign.
    - [`buildOrbitalColors`](../src/render/colors.js#L95-L103) maps $\varphi \in [-\pi, +\pi]$ onto a smooth $120^\circ$-offset cosine RGB color wheel so that $-\pi$ and $+\pi$ join seamlessly without a hard seam.
-   - As your eyes follow the rainbow around the ring in the $xy$-plane, the color cycles $|m|$ times per $360^\circ$ revolution, visualizing the **quantum probability current** $\mathbf{j} = \frac{\hbar}{m_e}\operatorname{Im}(\psi^* \nabla\psi)$ of the electron orbiting the Z-axis!
+   - As your eyes follow the rainbow around the ring in the $xy$-plane, the color cycles $|m|$ times per $360^\circ$ revolution, visualizing the **quantum probability current** of the electron orbiting the Z-axis:
+     $$\mathbf{j} = \frac{\hbar}{m_e}\text{Im}(\psi^* \nabla\psi)$$
 
 ### C. What Does the 2D Graph (`P(r) = r²|Rₙₗ(r)|² vs. MC Samples`) Show?
 The 2D canvas on the top-right ([`src/ui/radial-plot.js`](../src/ui/radial-plot.js)) plots the **radial probability distribution** $P(r)$ as a function of distance $r$ from the nucleus:
@@ -130,6 +131,7 @@ $$P_{n,l}(r) = r^2 |R_{n,l}(r)|^2, \qquad \int_0^\infty P_{n,l}(r)\,dr = 1$$
   - Even though the 3D density $|\psi_{1,0,0}(r)|^2$ of the $1s$ orbital is highest right at the proton ($r = 0$), the volume of a thin spherical shell between $r$ and $r + dr$ is $dV_{\text{shell}} = 4\pi r^2 dr$. At $r = 0$, the shell surface area $4\pi r^2$ vanishes! Multiplying by $r^2$ gives the probability of finding the electron anywhere at radius $r$, which peaks at **exactly $r = 1.0\,a_0$ (the Bohr radius)** for $1s$.
 - **What the 3 overlaid elements on the graph prove:**
   1. **Bright Cyan Curve:** The exact analytical formula $P(r) = r^2 |R_{n,l}(r)|^2$ from solving the Schrödinger Equation.
-  2. **Translucent Blue Bars:** The empirical histogram of the actual 3D points streamed from our Monte Carlo Web Worker, normalized as a true probability density $\hat{P}_b = \frac{N_b}{N_{\text{total}} \cdot \Delta r}$ so that $\sum_b \hat{P}_b \Delta r = 1$.
+  2. **Translucent Blue Bars:** The empirical histogram of the actual 3D points streamed from our Monte Carlo Web Worker, normalized as a true probability density so that the Riemann sum equals $1$:
+     $$\hat{P}_b = \frac{N_b}{N_{\text{total}} \cdot \Delta r}, \qquad \sum_b \hat{P}_b \Delta r = 1$$
   3. **Dashed Gold Vertical Line:** The analytical expectation value $\langle r \rangle$ (compared live against `MC ⟨r⟩` in the text above the plot).
   - Watching the blue histogram bars converge onto the cyan analytical curve and touch zero at every radial node is a **live visual verification** of our Monte Carlo sampler!

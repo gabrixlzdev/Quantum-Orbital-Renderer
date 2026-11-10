@@ -19,7 +19,7 @@ export function factorial(k){
     
     if(!Number.isInteger(k) || k < 0){
         // Throw a descriptive error so invalid physics calls fail fast during testing
-        throw new RangeError('Factorial requires a non-negative integer, received: ${k}');
+        throw new RangeError(`Factorial requires a non-negative integer, received: ${k}`);
     }
 
     // Return directly from contiguous typed array if within precomputed bounds (up to 20!)
@@ -49,23 +49,23 @@ export function validateQuantumNumbers(n,l=0,m=0){
     // Quantum number arise from boundary value quantization and must be exact intergers
     if(!Number.isInteger(n) || !Number.isInteger(l) || !Number.isInteger(m)){
 
-        throw new RangeError('Quantum numbers (n,l,m) must be integers, received: ($(n), $(l), $(m))')
+        throw new RangeError(`Quantum numbers (n,l,m) must be integers, received: ($(n), $(l), $(m))`)
         
     }
 
     // Principal quantum number n determines the energy shell and must be at least 1
     if (n<1){
-        throw new RangeError('Principal quantum number n must be >= 1, received: $(n)');
+        throw new RangeError(`Principal quantum number n must be >= 1, received: $(n)`);
     }
 
      // Azimuthal quantum number l is bounded by 0 <= l <= n - 1 from radial series termination
     if(l < 0 || l>= n ){
-        throw new RangeError('Azimuthal quantum number l must satisfy 0 <= l < n (n = $(n)), received: $(l) ')
+        throw new RangeError(`Azimuthal quantum number l must satisfy 0 <= l < n (n = $(n)), received: $(l)`)
     }
 
     //magnetic quantum number m is bounded by -1 <= m <= 1 from single valuedness of Y_l^m (theta, phi))
     if (Math.abs(m)>l){
-        throw new RangeError('Magnetic quantum number m must satisfy abs(m) <= 1, received: $(m)');
+        throw new RangeError(`Magnetic quantum number m must satisfy abs(m) <= 1, received: $(m)`);
     }
 }
 

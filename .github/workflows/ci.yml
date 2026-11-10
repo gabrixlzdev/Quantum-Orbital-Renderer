@@ -1,31 +1,94 @@
-#grant minimal read only permission to repository contents
-permissions:
-    contents: read
-
-#define the automated jobs that run on Github-hosted virtual machines
-jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4 #Downloads your repository code onto the runner.
-            
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: 22
-            
-            - name: run unit & physics verification tests
-              run: npm test
-
-
-
-#workflow name displayed in the github actions tab and status badge
+# Declare the human-readable workflow name shown in the GitHub Actions tab and README badge
 name: CI
 
-#trigger this pipeline automatically on every push or pull request to the main branch
+# Define the repository events that automatically trigger this CI/CD pipeline
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  # Trigger whenever new commits are pushed to the repository
+  push:
+    # Restrict push triggers to the main production branch
+    branches: [main]
+  # Trigger whenever a pull request targeting main is opened or updated
+  pull_request:
+    # Restrict pull request triggers to those targeting the main branch
+    branches: [main]
+  # Allow manual one-click execution of this workflow from the GitHub Actions web UI
+  workflow_dispatch:
+
+# Follow the Principle of Least Privilege by explicitly scoping GITHUB_TOKEN permissions
+permissions:
+  # Allow the runner to read and clone repository source files (never modify code)
+  contents: read
+  # Allow the deploy job to publish static site assets to GitHub Pages
+  pages: write
+  # Allow GitHub OpenID Connect (OIDC) token generation to verify deployment authenticity
+  id-token: write
+
+# Prevent race conditions if two commits are pushed rapidly back-to-back
+concurrency:
+  # Group all GitHub Pages deployments under a single lock named "pages"
+  group: "pages"
+  # Let an in-progress deployment finish cleanly instead of aborting mid-upload
+  cancel-in-progress: false
+
+# Define the automated jobs that execute on GitHub-hosted virtual machines
+jobs:
+  # Job 1: Automated Physics & Unit Test Verification Gate
+  test:
+    # Provision a fresh Ubuntu Linux virtual machine for the test runner
+    runs-on: ubuntu-latest
+    # Sequential list of shell/action steps executed inside the test VM
+    steps:
+      # Step 1: Clone the Quantum-Orbital-Renderer Git repository onto the VM
+      - name: Checkout repository
+        # Use GitHub's official checkout action (v4)
+        uses: actions/checkout@v4
+
+      # Step 2: Install and configure the Node.js runtime environment
+      - name: Set up Node.js
+        # Use GitHub's official Node.js setup action (v4)
+        uses: actions/setup-node@v4
+        # Pass configuration inputs to the setup-node action
+        with:
+          # Pin Node.js to version 22 LTS for native node --test support
+          node-version: 22
+
+      # Step 3: Execute our automated test suite (test/*.spec.js)
+      - name: Run unit & physics verification tests
+        # Run "npm test" (if any test fails with exit code 1, the pipeline halts here!)
+        run: npm test
+
+  # Job 2: Zero-Build Continuous Deployment (CD) to GitHub Pages
+  deploy:
+    # Enforce a strict quality gate: deploy ONLY runs if the "test" job succeeded
+    needs: test
+    # Only deploy on pushes to main (never deploy unmerged pull requests)
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Provision a fresh Ubuntu Linux virtual machine for deployment
+    runs-on: ubuntu-latest
+    # Sequential list of steps to package and publish the static web application
+    steps:
+      # Step 1: Clone the verified repository files onto the deployment VM
+      - name: Checkout repository
+        # Use GitHub's official checkout action (v4)
+        uses: actions/checkout@v4
+
+      # Step 2: Initialize GitHub Pages metadata and base URL paths
+      - name: Configure GitHub Pages
+        # Use GitHub's official Pages configuration action (v5)
+        uses: actions/configure-pages@v5
+
+      # Step 3: Package the static site directory (index.html, src/, vendor/) into a tar artifact
+      - name: Upload static site artifact
+        # Use GitHub's official Pages artifact uploader (v3)
+        uses: actions/upload-pages-artifact@v3
+        # Specify which directory to publish
+        with:
+          # Upload the repository root '.' since our zero-build ES modules run natively
+          path: '.'
+
+      # Step 4: Publish the uploaded artifact to GitHub Pages' global HTTPS CDN
+      - name: Deploy to GitHub Pages
+        # Assign an ID so environment.url above can read outputs.page_url
+        id: deployment
+        # Use GitHub's official Pages deployment action (v4)
+        uses: actions/deploy-pages@v4

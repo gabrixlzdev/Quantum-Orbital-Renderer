@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/gabrixlzdev/Quantum-Orbital-Renderer/actions/workflows/ci.yml/badge.svg)](https://github.com/gabrixlzdev/Quantum-Orbital-Renderer/actions/workflows/ci.yml)
 
+**🌐 Live 3D Demo:** [https://gabrixlzdev.github.io/Quantum-Orbital-Renderer/](https://gabrixlzdev.github.io/Quantum-Orbital-Renderer/)
+
 Interactive 3D viewer of hydrogen-atom orbitals ($\psi_{n,l,m}$) in vanilla JavaScript and Three.js, featuring physically verified factorized inverse-CDF sampling in a Web Worker.
 
 ## Overview

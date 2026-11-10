@@ -19,6 +19,10 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
   - Radial probability density $P(r) = r^2 |R_{n,l}(r)|^2$ verified to normalize to $\int_0^\infty P(r)\,dr = 1 \pm 10^{-3}$ for $n \in [1, 6]$.
   - Radial node count $n - l - 1$, angular node count $l$, and Bohr eigenenergies $E_n = -13.6057 / n^2\text{ eV}$.
   - Analytical Kramers expectation values: $\langle r \rangle = \frac{1}{2}[3n^2 - l(l+1)]$ and $\langle r^2 \rangle = \frac{n^2}{2}[5n^2 + 1 - 3l(l+1)]$.
+- **Angular Wavefunction & Spherical Harmonics (`angular.js`):**
+  - Associated Legendre functions $P_l^m(\cos\theta)$ computed via stable upward recurrence in degree $l$, including the **Condon-Shortley phase convention $(-1)^m$**.
+  - Supports both **real orbitals** ($m > 0 \propto \sqrt{2}\cos(m\phi)$, $m < 0 \propto \sqrt{2}\sin(|m|\phi)$, $m = 0$) and **complex orbitals** ($e^{im\phi}$).
+  - Verified via 2D spherical quadrature to satisfy $\oint |Y_{l,m}(\theta, \phi)|^2 \, d\Omega = 1 \pm 10^{-3}$ for all $l \in [0, 5]$ and $m \in [-l, l]$.
 
 ## Project Structure
 

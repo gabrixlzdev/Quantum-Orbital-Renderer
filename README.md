@@ -14,6 +14,15 @@ This project visualizes the electronic probability density $|\psi_{n,l,m}(r, \th
 - **Angular Wavefunction $Y_l^m(\theta, \phi)$:** Associated Legendre functions in both complex and real orbital forms.
 - **High-Performance Sampling:** Factorized inverse Cumulative Distribution Function (CDF) sampling offloaded to a Web Worker with zero-copy `Float32Array` buffer transfers.
 
+## Documentation & Theoretical Guides (`docs/`)
+
+Comprehensive physics derivations, numerical analysis, and systems engineering documentation separated by subject:
+
+1. **[Quantum Theory & Visual Orbital Guide](docs/quantum-theory.md)** — Derivation of the 3D Time-Independent Schrödinger Equation in spherical coordinates, why $n=1$ only permits $l=0, m=0$ ($1s$), Laguerre & Legendre recurrences, Condon-Shortley phase, what the cyan ($\psi > 0$) and coral-orange ($\psi < 0$) dot colors represent in Real mode, why Complex mode ($e^{im\phi}$) forms a 3D torus with a $2\pi$ phase color wheel, and how to read the 2D radial $P(r)$ vs. Monte Carlo histogram plot.
+2. **[Monte Carlo Methods, Factorized Inverse-CDF Sampling & PRNG](docs/monte-carlo-sampling.md)** — First-principles explanation of the Monte Carlo method, Central Limit Theorem ($\sigma / \sqrt{N}$), why 3D Rejection Sampling wastes $>99.9\%$ of trials in empty space, how Calculus (the $4096$-point CDF integral $F(r)$) + $O(\log_2 N)$ Binary Search pick points directly where the cloud is dense ($866\times$ to $4,739\times$ speedup), and how the deterministic `mulberry32` PRNG recurrence works.
+3. **[Numerical Methods in JavaScript: IEEE-754, Quadrature & C++/Python Comparisons](docs/numerical-methods-js.md)** — IEEE-754 64-bit floating-point representation, why factorials are exact up to $21!$ and overflow above $170!$, higher-order numerical quadrature using JavaScript arrow callbacks `(r) => ...`, and low-level memory comparisons between `TypedArray`, C++ `std::vector`/`std::span`, and Python `NumPy`.
+4. **[System Architecture: Zero-Build ES Modules, Web Workers & WebGL GPU Pipeline](docs/system-architecture.md)** — End-to-end Mermaid architecture diagram, folder-by-folder responsibilities, zero-copy `Transferable` `ArrayBuffer` streaming, Three.js `BufferGeometry` (`THREE.AdditiveBlending` and why `depthWrite: false` is required), why and how Three.js is vendored in `vendor/` with `<script type="importmap">`, why local testing uses `python -m http.server 8080`, and how the Automated FPS Benchmark operates.
+
 ## Verified Physics Core (`src/physics/`)
 
 - **Quantum Number Bounds & Combinatorics (`quantum-numbers.js`):** Precomputed `Float64Array` factorial table ($O(1)$ lookup) and Pauli/Schrödinger boundary validation ($n \ge 1$, $0 \le l < n$, $|m| \le l$).
@@ -79,7 +88,12 @@ Head-to-head comparison (`bench/sampling-bench.mjs`) between our **Factorized In
 
 ```text
 Quantum-Orbital-Renderer/
-├── .github/workflows/  # Automated GitHub Actions CI pipeline (node --test)
+├── .github/workflows/  # Automated GitHub Actions CI & GitHub Pages CD pipeline
+├── docs/               # Subject-separated theoretical physics & systems architecture guides
+│   ├── quantum-theory.md
+│   ├── monte-carlo-sampling.md
+│   ├── numerical-methods-js.md
+│   └── system-architecture.md
 ├── index.html          # Browser entry point (native ES module importmap & HUD layout)
 ├── src/
 │   ├── physics/        # Pure ES modules (quantum-numbers, radial, angular, sampler)

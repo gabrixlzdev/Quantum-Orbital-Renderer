@@ -46,6 +46,33 @@ export function formatDetailedOrbitalTitle(n, l, m, useReal) {
 }
 
 /**
+ * Returns a plain-English geometry description of the current subshell (s, p, d, f, g, h).
+ *
+ * @param {number} n - Principal quantum number.
+ * @param {number} l - Azimuthal quantum number.
+ * @param {number} m - Magnetic quantum number.
+ * @param {boolean} useReal - Whether real or complex harmonics are active.
+ * @returns {string} Human-readable shape description.
+ */
+export function describeOrbitalGeometry(n, l, m, useReal) {
+  if (l === 0) {
+    const shells = n;
+    return `Spherical s-subshell (${shells} concentric shell${shells > 1 ? 's' : ''})`;
+  }
+  if (!useReal && m !== 0) {
+    return `Azimuthal torus ring around Z-axis (L_z = ${m > 0 ? '+' : ''}${m}ℏ)`;
+  }
+  if (l === 1) return 'Polar dumbbell p-subshell (2 opposite-phase lobes)';
+  if (l === 2) {
+    return m === 0
+      ? 'Dumbbell + equatorial torus ring (d_z² symmetry)'
+      : 'Four-leaf clover d-subshell (4 alternating lobes)';
+  }
+  if (l === 3) return 'Multipole f-subshell (6–8 alternating lobes)';
+  return `High-order l=${l} multipole subshell`;
+}
+
+/**
  * Mounts the interactive controls into #controls-panel and provides methods to update
  * the #orbital-stats and #perf-panel HUD overlays.
  *
@@ -281,6 +308,7 @@ export function createControlsUI({
    */
   function updateOrbitalStats({ n, l, m, useReal, sampleMeanR, activePoints, totalPoints }) {
     const title = formatDetailedOrbitalTitle(n, l, m, useReal);
+    const shapeDesc = describeOrbitalGeometry(n, l, m, useReal);
     const energy = orbitalEnergyEv(n);
     const rNodes = radialNodeCount(n, l);
     const aNodes = angularNodeCount(l);
@@ -289,20 +317,37 @@ export function createControlsUI({
       typeof sampleMeanR === 'number' && sampleMeanR > 0
         ? `${sampleMeanR.toFixed(2)} a₀`
         : '...';
+    const stateType = n === 1 ? 'Ground State (n = 1)' : `Excited State (n = ${n})`;
+    const colorLegend = useReal
+      ? '<span style="color:#38bdf8">● Cyan: ψ &gt; 0 (+)</span> &nbsp;|&nbsp; <span style="color:#fb7185">● Coral: ψ &lt; 0 (−)</span>'
+      : '<span style="color:#38bdf8">● Rainbow Wheel: Complex Phase φ ∈ [−π, +π]</span>';
 
     statsEl.innerHTML = `
-      <div style="font-weight: 700; font-size: 1.05rem; color: #38bdf8; margin-bottom: 6px;">
-        Orbital: ${title}
+      <div style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; margin-bottom: 2px;">
+        Atom: Hydrogen-1 (¹H — Protium, Z = 1)
       </div>
-      <div style="line-height: 1.55; color: #cbd5e1;">
-        <div><strong>Energy (Eₙ):</strong> ${energy.toFixed(4)} eV</div>
-        <div><strong>Radial Nodes (n−l−1):</strong> ${rNodes} &nbsp;|&nbsp; <strong>Angular (l):</strong> ${aNodes}</div>
-        <div><strong>Exact ⟨r⟩:</strong> ${exactMeanR.toFixed(2)} a₀ &nbsp;|&nbsp; <strong>MC ⟨r⟩:</strong> ${mcMeanStr}</div>
-        <div><strong>Streamed Points:</strong> ${activePoints.toLocaleString()} / ${totalPoints.toLocaleString()}</div>
-        <div style="font-size: 0.78rem; margin-top: 3px; color: #94a3b8;">
-          <strong>Nucleus (p⁺ = uud):</strong>
-          <span style="color:#fbbf24">● 2 Up (+⅔e)</span> &nbsp;
-          <span style="color:#e879f9">● 1 Down (−⅓e)</span>
+      <div style="font-weight: 700; font-size: 1.05rem; color: #38bdf8; margin-bottom: 2px;">
+        Orbital: ${title} &nbsp;<span style="font-size: 0.8rem; font-weight: 500; color: #cbd5e1;">(${stateType})</span>
+      </div>
+      <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px;">
+        ${shapeDesc}
+      </div>
+      <div style="line-height: 1.5; color: #cbd5e1; font-size: 0.82rem;">
+        <div><strong>Atom Composition:</strong> 1 Proton (p⁺) + 1 Electron (e⁻), 0 Neutrons</div>
+        <div><strong>Binding Energy (Eₙ):</strong> ${energy.toFixed(4)} eV</div>
+        <div><strong>Nodes:</strong> ${rNodes} Radial (spherical) &nbsp;|&nbsp; ${aNodes} Angular (planar/conical)</div>
+        <div><strong>Mean Radius ⟨r⟩:</strong> ${exactMeanR.toFixed(2)} a₀ (Exact) &nbsp;|&nbsp; ${mcMeanStr} (MC)</div>
+        <div><strong>Electron Cloud Dots:</strong> ${activePoints.toLocaleString()} / ${totalPoints.toLocaleString()}</div>
+        <div style="font-size: 0.76rem; margin-top: 3px;">${colorLegend}</div>
+        <div style="font-size: 0.76rem; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(148,163,184,0.2); color: #cbd5e1;">
+          <div><strong>Center Nucleus at (0,0,0):</strong> 1 Proton (p⁺ = uud, +1e)</div>
+          <div style="color: #94a3b8; margin-top: 1px;">
+            <span style="color:#fbbf24">● 2 Up Quarks (+⅔e each)</span> &nbsp;
+            <span style="color:#e879f9">● 1 Down Quark (−⅓e)</span>
+          </div>
+          <div style="color: #64748b; font-size: 0.72rem;">
+            White triangle lines: Gluon strong-force bonds (magnified ~63,000×)
+          </div>
         </div>
       </div>
     `;

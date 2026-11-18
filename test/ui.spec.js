@@ -8,7 +8,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { sampleOrbitalCloud } from '../src/physics/sampler.js';
 import { computeRadialHistogramAndCurve } from '../src/ui/radial-plot.js';
-import { formatDetailedOrbitalTitle } from '../src/ui/controls.js';
+import { formatDetailedOrbitalTitle, describeOrbitalGeometry } from '../src/ui/controls.js';
 import { parseHashState, serializeHashState } from '../src/main.js';
 
 describe('UI Pure Helpers & Radial Histogram Normalization (Step 7)', () => {
@@ -57,6 +57,11 @@ describe('UI Pure Helpers & Radial Histogram Normalization (Step 7)', () => {
     assert.strictEqual(formatDetailedOrbitalTitle(3, 2, 0, true), '3d_z²');
     assert.strictEqual(formatDetailedOrbitalTitle(3, 2, 2, true), '3d_x²-y²');
     assert.strictEqual(formatDetailedOrbitalTitle(3, 2, -1, false), '3d (m = -1, complex)');
+
+    assert.ok(describeOrbitalGeometry(1, 0, 0, true).includes('Spherical s-subshell'));
+    assert.ok(describeOrbitalGeometry(2, 1, 0, true).includes('Polar dumbbell'));
+    assert.ok(describeOrbitalGeometry(3, 2, 0, true).includes('equatorial torus'));
+    assert.ok(describeOrbitalGeometry(3, 2, 1, false).includes('Azimuthal torus ring'));
   });
 
   it('parses and serializes URL hash state while clamping invalid quantum numbers', () => {

@@ -58,7 +58,7 @@ Comprehensive physics derivations, numerical analysis, and systems engineering d
 ## Interactive HUD, 2D Radial Plot & Orchestrator (`src/ui/` & `src/main.js`)
 
 - **2D Radial Probability & Sample Histogram (`radial-plot.js`):** Overlays the analytical Schrödinger curve $P(r) = r^2 |R_{n,l}(r)|^2$ against the normalized empirical histogram ($\sum_b \hat{P}_b \Delta r = 1$) of streamed worker samples, with a marker at $\langle r \rangle$.
-- **Reactive Quantum Controls & Telemetry (`controls.js`):** Enforces quantum selection rules ($0 \le l < n$, $|m| \le l$) dynamically, displays analytical vs. Monte Carlo observables ($E_n$, radial/angular nodes, $\langle r \rangle$), and provides instant GPU toggles (color mode, point size, auto-rotate, $z \le 0$ nodal cross-section).
+- **Reactive Quantum Controls & Telemetry (`controls.js`):** Enforces quantum selection rules ($0 \le l < n$, $|m| \le l$) dynamically, displays explicit **Hydrogen-1 (`¹H — Protium`)** atom composition ($1\text{ p}^+ + 1\text{ e}^-, 0\text{ n}^0$), plain-English subshell geometry descriptions (`describeOrbitalGeometry`), analytical vs. Monte Carlo observables ($E_n$, radial/angular nodes, $\langle r \rangle$), and instant GPU toggles (color mode, point size, auto-rotate, $z \le 0$ nodal cross-section, and central $p^+ = uud$ nucleus visibility).
 - **Application Orchestrator (`main.js`):** Synchronizes URL hash state (`#n=3&l=2&m=0&real=1&points=120000`), streams progressive worker chunks into the 3D scene and 2D histogram, and runs an automated multi-scale FPS & Worker benchmark ($50\text{k} \dots 500\text{k}$ points).
 
 ## Measured Performance Benchmarks

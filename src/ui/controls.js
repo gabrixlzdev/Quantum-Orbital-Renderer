@@ -124,6 +124,10 @@ export function createControlsUI({
       <label for="check-slice">Cross-Section (z ≤ 0):</label>
       <input id="check-slice" type="checkbox" />
     </div>
+    <div class="control-row">
+      <label for="check-nucleus">Nucleus & Quarks (uud):</label>
+      <input id="check-nucleus" type="checkbox" />
+    </div>
     <button id="btn-benchmark" type="button">⏱️ Run Automated FPS Benchmark</button>
   `;
 
@@ -139,6 +143,7 @@ export function createControlsUI({
   const selectColor = controlsEl.querySelector('#select-color');
   const checkRotate = controlsEl.querySelector('#check-rotate');
   const checkSlice = controlsEl.querySelector('#check-slice');
+  const checkNucleus = controlsEl.querySelector('#check-nucleus');
   const btnBenchmark = controlsEl.querySelector('#btn-benchmark');
 
   // Populate Principal Quantum Number n = 1 .. MAX_N (6)
@@ -201,6 +206,7 @@ export function createControlsUI({
   selectColor.value = state.colorMode;
   checkRotate.checked = Boolean(state.autoRotate);
   checkSlice.checked = Boolean(state.slicePlane);
+  checkNucleus.checked = state.showNucleus !== false;
 
   // Wire up event listeners for quantum state changes (requires Web Worker re-sampling)
   selectN.addEventListener('change', () => {
@@ -257,6 +263,11 @@ export function createControlsUI({
     onRenderSettingChange({ ...state });
   });
 
+  checkNucleus.addEventListener('change', () => {
+    state.showNucleus = checkNucleus.checked;
+    onRenderSettingChange({ ...state });
+  });
+
   btnBenchmark.addEventListener('click', () => {
     if (typeof onRunBenchmark === 'function') {
       onRunBenchmark();
@@ -288,6 +299,11 @@ export function createControlsUI({
         <div><strong>Radial Nodes (n−l−1):</strong> ${rNodes} &nbsp;|&nbsp; <strong>Angular (l):</strong> ${aNodes}</div>
         <div><strong>Exact ⟨r⟩:</strong> ${exactMeanR.toFixed(2)} a₀ &nbsp;|&nbsp; <strong>MC ⟨r⟩:</strong> ${mcMeanStr}</div>
         <div><strong>Streamed Points:</strong> ${activePoints.toLocaleString()} / ${totalPoints.toLocaleString()}</div>
+        <div style="font-size: 0.78rem; margin-top: 3px; color: #94a3b8;">
+          <strong>Nucleus (p⁺ = uud):</strong>
+          <span style="color:#fbbf24">● 2 Up (+⅔e)</span> &nbsp;
+          <span style="color:#e879f9">● 1 Down (−⅓e)</span>
+        </div>
       </div>
     `;
   }
@@ -326,6 +342,7 @@ export function createControlsUI({
       selectColor.value = state.colorMode;
       checkRotate.checked = Boolean(state.autoRotate);
       checkSlice.checked = Boolean(state.slicePlane);
+      checkNucleus.checked = state.showNucleus !== false;
     },
     setBenchmarkRunning: (running) => {
       btnBenchmark.disabled = running;

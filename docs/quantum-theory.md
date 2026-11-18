@@ -135,3 +135,18 @@ $$P_{n,l}(r) = r^2 |R_{n,l}(r)|^2, \qquad \int_0^\infty P_{n,l}(r)\,dr = 1$$
      $$\hat{P}_b = \frac{N_b}{N_{\text{total}} \cdot \Delta r}, \qquad \sum_b \hat{P}_b \Delta r = 1$$
   3. **Dashed Gold Vertical Line:** The analytical expectation value $\langle r \rangle$ (compared live against `MC ⟨r⟩` in the text above the plot).
   - Watching the blue histogram bars converge onto the cyan analytical curve and touch zero at every radial node is a **live visual verification** of our Monte Carlo sampler!
+
+### D. The Hydrogen-1 Proton Nucleus & Valence Quarks ($p^+ = uud$) at $(0, 0, 0)$
+To provide an intuitive spatial reference point at the atomic center $(0, 0, 0)$ — especially for $p, d, f$ states ($l \ge 1$) where the electron probability vanishes at the origin due to the centrifugal barrier $R_{n,l}(r) \propto r^l$ — [`src/render/scene.js`](../src/render/scene.js) renders the **Hydrogen-1 ($^1\text{H}$, protium) nucleus**:
+1. **Quark Composition ($p^+ = uud$):**
+   - A proton is a composite baryon consisting of **three valence quarks** bound by the strong nuclear interaction (Quantum Chromodynamics gluon field):
+     - **2 Up Quarks ($u$, rendered in Amber-Gold):** Electric charge $q_u = +\frac{2}{3}e$ each.
+     - **1 Down Quark ($d$, rendered in Violet-Magenta):** Electric charge $q_d = -\frac{1}{3}e$.
+     - **Total Nuclear Charge:**
+       $$Q_{\text{proton}} = \frac{2}{3}e + \frac{2}{3}e - \frac{1}{3}e = +1e$$
+       This net $+1e$ charge generates the central Coulomb potential $V(r) = -\frac{e^2}{4\pi\varepsilon_0 r}$ that binds the electron into the orbitals $\psi_{n,l,m}(r, \theta, \phi)$.
+   - The three white lines connecting the oscillating quarks represent **gluon color-flux tubes** confining the quark triad inside the translucent cyan proton boundary sphere.
+2. **Why Schematic Magnification ($\sim 63,000\times$) Is Necessary:**
+   - The physical charge radius of a proton is $r_p \approx 0.84\text{ fm} = 0.84 \times 10^{-15}\text{ m}$, whereas the Bohr radius of the $1s$ electron shell is $a_0 \approx 0.529 \times 10^{-10}\text{ m} = 52,918\text{ fm}$:
+     $$\frac{a_0}{r_p} \approx 63,000$$
+   - At a true 1:1 scale, the proton would have a radius of $1.6 \times 10^{-5}\,a_0$ (far smaller than a single screen pixel). Rendering the proton at a schematic radius of $\sim 0.5\,a_0$ (and allowing it to be toggled on/off via the **`Nucleus & Quarks (uud)`** checkbox) lets the user clearly see the central nucleus around which the electron probability cloud is distributed.

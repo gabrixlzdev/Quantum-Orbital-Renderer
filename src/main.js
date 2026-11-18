@@ -30,6 +30,7 @@ export function parseHashState(hashStr, defaults = {}) {
     colorMode: COLOR_MODES[0],
     autoRotate: true,
     slicePlane: false,
+    showNucleus: true,
     ...defaults,
   };
 
@@ -150,6 +151,7 @@ async function initBrowserApp() {
       scene.setColorMode(appState.colorMode);
       scene.setAutoRotate(appState.autoRotate);
       scene.setSlicePlane(appState.slicePlane);
+      scene.setShowNucleus(appState.showNucleus);
     },
     onRunBenchmark: () => {
       runAutomatedBenchmark();

@@ -53,6 +53,7 @@ Comprehensive physics derivations, numerical analysis, and systems engineering d
 - **Zero-GC Three.js Point-Cloud Scene (`scene.js` & `vendor/`):**
   - Pinned Three.js (`v0.160.0`) and `OrbitControls` ES modules vendored in `vendor/` via `<script type="importmap">` for zero external CDN dependency.
   - Preallocates GPU `BufferGeometry` (`THREE.DynamicDrawUsage`) for up to $500,000$ points, streaming worker chunks progressively via `setDrawRange` with `THREE.AdditiveBlending`, `depthWrite: false`, trigonometric camera auto-framing (`computeCameraDistanceForRadius`), and $z \le 0$ cross-sectional nodal slicing.
+  - Renders a toggleable, schematically magnified **Hydrogen-1 Proton Nucleus ($p^+ = uud$)** at the origin $(0,0,0)$, showing a translucent confinement shell containing **2 Up quarks** ($+\frac{2}{3}e$, amber-gold) and **1 Down quark** ($-\frac{1}{3}e$, violet-magenta) linked by strong-force gluon flux tubes.
 
 ## Interactive HUD, 2D Radial Plot & Orchestrator (`src/ui/` & `src/main.js`)
 

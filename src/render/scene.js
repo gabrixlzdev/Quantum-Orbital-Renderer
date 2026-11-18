@@ -96,6 +96,66 @@ export async function createOrbitalScene(canvas, options = {}) {
   axesHelper.material.opacity = 0.25;
   scene.add(axesHelper);
 
+  // Create the Hydrogen-1 Proton Nucleus (p+ = uud: 2 Up quarks + 1 Down quark) at the origin (0, 0, 0)
+  // Note: Schematically magnified (~63,000x relative to a0) so the subatomic core is visible inside the orbital
+  const nucleusGroup = new THREE.Group();
+  scene.add(nucleusGroup);
+
+  // 1. Translucent Proton confinement boundary sphere (radius 0.55 a0 in local group space)
+  const protonShellGeo = new THREE.SphereGeometry(0.55, 24, 24);
+  const protonShellMat = new THREE.MeshBasicMaterial({
+    color: 0x38bdf8,
+    transparent: true,
+    opacity: 0.18,
+    depthWrite: false,
+  });
+  const protonShellMesh = new THREE.Mesh(protonShellGeo, protonShellMat);
+  nucleusGroup.add(protonShellMesh);
+
+  // 2. Inner triad container for the 3 valence quarks (2 Up +2/3e, 1 Down -1/3e) and gluon flux tubes
+  const quarkTriadGroup = new THREE.Group();
+  nucleusGroup.add(quarkTriadGroup);
+
+  // Shared sphere geometry for each valence quark (radius 0.16 a0 in local group space)
+  const quarkGeo = new THREE.SphereGeometry(0.16, 16, 16);
+  // Up quark material (Amber-Gold #fbbf24, charge +2/3 e)
+  const upQuarkMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+  // Down quark material (Electric Violet-Magenta #e879f9, charge -1/3 e)
+  const downQuarkMat = new THREE.MeshBasicMaterial({ color: 0xe879f9 });
+
+  // Arrange the 3 quarks in an equilateral triangle of radius 0.26 around (0, 0, 0)
+  const quarkOrbitRadius = 0.26;
+  const quarkAngles = [0, (2 * Math.PI) / 3, (4 * Math.PI) / 3];
+  const quarkMeshes = [
+    new THREE.Mesh(quarkGeo, upQuarkMat), // Up quark #1 (u)
+    new THREE.Mesh(quarkGeo, upQuarkMat), // Up quark #2 (u)
+    new THREE.Mesh(quarkGeo, downQuarkMat), // Down quark #3 (d)
+  ];
+
+  for (let q = 0; q < 3; q++) {
+    const angle = quarkAngles[q];
+    quarkMeshes[q].position.set(
+      quarkOrbitRadius * Math.cos(angle),
+      quarkOrbitRadius * Math.sin(angle),
+      0
+    );
+    quarkTriadGroup.add(quarkMeshes[q]);
+  }
+
+  // 3. Strong-force Gluon flux tubes (triangle loop connecting u1 -> u2 -> d -> u1)
+  const gluonPositions = new Float32Array(4 * 3);
+  const gluonGeo = new THREE.BufferGeometry();
+  const gluonPosAttr = new THREE.BufferAttribute(gluonPositions, 3);
+  gluonPosAttr.setUsage(THREE.DynamicDrawUsage);
+  gluonGeo.setAttribute('position', gluonPosAttr);
+  const gluonMat = new THREE.LineBasicMaterial({
+    color: 0xf8fafc,
+    transparent: true,
+    opacity: 0.65,
+  });
+  const gluonLines = new THREE.Line(gluonGeo, gluonMat);
+  quarkTriadGroup.add(gluonLines);
+
   // Pre-allocate contiguous Float32Arrays for 500,000 3D positions and RGB colors (6 MB each)
   const positionBuffer = new Float32Array(maxPoints * 3);
   const colorBuffer = new Float32Array(maxPoints * 3);
@@ -242,6 +302,9 @@ export async function createOrbitalScene(canvas, options = {}) {
     // Scale axes helper proportionally to the orbital size
     const axesScale = Math.max(1, currentRMax * 0.65 / 8);
     axesHelper.scale.set(axesScale, axesScale, axesScale);
+    // Scale nucleus schematically with orbital size so the proton core stays clearly visible
+    const nucleusScale = Math.max(0.75, currentRMax * 0.045);
+    nucleusGroup.scale.set(nucleusScale, nucleusScale, nucleusScale);
   }
 
   /**
@@ -276,6 +339,15 @@ export async function createOrbitalScene(canvas, options = {}) {
   }
 
   /**
+   * Toggles visibility of the central Hydrogen proton nucleus and its 3 valence quarks (uud).
+   *
+   * @param {boolean} enabled - Whether the nucleus group is visible at (0, 0, 0).
+   */
+  function setShowNucleus(enabled) {
+    nucleusGroup.visible = Boolean(enabled);
+  }
+
+  /**
    * Resizes the WebGL viewport and updates the camera aspect ratio when the window resizes.
    */
   function handleResize() {
@@ -302,6 +374,32 @@ export async function createOrbitalScene(canvas, options = {}) {
    */
   function animate(now) {
     animationFrameId = requestAnimationFrame(animate);
+
+    // Animate the valence quarks (uud) tumbling and oscillating inside the proton confinement shell
+    if (nucleusGroup.visible && !prefersReducedMotion) {
+      const t = now * 0.0022;
+      quarkTriadGroup.rotation.y = t * 0.9;
+      quarkTriadGroup.rotation.x = Math.sin(t * 0.7) * 0.65;
+      for (let q = 0; q < 3; q++) {
+        const baseAngle = quarkAngles[q] + t * 0.6;
+        const radialPulse = quarkOrbitRadius * (0.92 + 0.14 * Math.sin(t * 2.1 + q * 2.09));
+        const zBob = 0.08 * Math.cos(t * 1.8 + q * 2.09);
+        const qx = radialPulse * Math.cos(baseAngle);
+        const qy = radialPulse * Math.sin(baseAngle);
+        quarkMeshes[q].position.set(qx, qy, zBob);
+
+        const gIdx = q * 3;
+        gluonPositions[gIdx] = qx;
+        gluonPositions[gIdx + 1] = qy;
+        gluonPositions[gIdx + 2] = zBob;
+      }
+      // Close the triangle loop back to quark #0 (u1 -> u2 -> d -> u1)
+      gluonPositions[9] = gluonPositions[0];
+      gluonPositions[10] = gluonPositions[1];
+      gluonPositions[11] = gluonPositions[2];
+      gluonPosAttr.needsUpdate = true;
+    }
+
     controls.update();
     renderer.render(scene, camera);
 
@@ -329,6 +427,7 @@ export async function createOrbitalScene(canvas, options = {}) {
     setPointSize,
     setAutoRotate,
     setSlicePlane,
+    setShowNucleus,
     handleResize,
     getActivePointCount: () => activePointCount,
     getCurrentFps: () => currentFps,
